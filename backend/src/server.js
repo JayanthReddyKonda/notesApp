@@ -4,7 +4,10 @@ import notesRoute from './routes/notesRoute.js'
 import { connectDB } from './config/db.js'
 
 connectDB()
+
 const app = express()
+// Middleware for json
+app.use(express.json())
 
 app.use("/api/notes", notesRoute)
 

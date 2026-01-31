@@ -1,15 +1,53 @@
-export const getAllNotes = (req,res)=>{
-    res.status(200).send("Note Retrieved")
+import Note from "../models/Note.js"
+export const getAllNotes = async (req, res) => {
+    try {
+        const notes = await Note.find();
+        res.status(200).json(notes)
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error fetching notes" });
+    }
 }
 
-export const createNote = (req,res)=>{
-    res.status(201).json({message:"Notes Taken"})
+export const createNote = async (req, res) => {
+    try {
+        const { title, content } = req.body || {};
+        const newNote = new Note({ title, content });
+        await newNote.save();
+        res.status(201).json({ message: "Note Created" })
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error Creating notes" });
+    }
 }
 
-export const updateNote = (req,res)=>{
-    res.status(200).send("Note Updated ")
-}
+export const updateNote = async (req, res) => {
+    try {
+        const { title, content } = req.body || {};
+        const updatedNote = await Note.findByIdAndUpdate(
+            req.params.id,
+            { title, content },
+            { new: true }
+        );
+        if (!updatedNote) {
+            return res.status(404).json({ message: "Note not found" });
+        }
+        res.status(200).json({ message: "Note updated", note: updatedNote });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error updating note" });
+    }
+};
 
-export const deleteNote = (req,res)=>{
-    res.status(200).send("Note Deleted")
+export const deleteNote = async (req, res) => {
+    try {
+        const deletedNote = await Note.findByIdAndDelete(req.params.id);
+        if (!deletedNote) {
+            return res.status(404).json({ message: "Note not found" });
+        }
+        res.status(200).json({ message: "Note Deleted" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error deleting note" });
+    }
 }
