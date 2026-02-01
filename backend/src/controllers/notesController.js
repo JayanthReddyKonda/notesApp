@@ -11,9 +11,9 @@ export const getAllNotes = async (_, res) => {
 
 export const getNotesByID = async(req,res)=>{
     try{
-        const noteID = await Note.findById(req.params.id);
-        if(!noteID) res.status(404).json({message:"No Note By that ID"})
-        else res.status(200).json(noteID);
+        const note = await Note.findById(req.params.id);
+        if(!note) return res.status(404).json({message:"No Note By that ID"});
+        res.status(200).json(note);
     }catch(error){
         console.error(error);
         res.status(500).json({ message: "Error fetching notes by ID" });
@@ -23,6 +23,11 @@ export const getNotesByID = async(req,res)=>{
 export const createNote = async (req, res) => {
     try {
         const { title, content } = req.body || {};
+        
+        if (!title || !content) {
+            return res.status(400).json({ message: "Title and content are required" });
+        }
+        
         const newNote = new Note({ title, content });
         await newNote.save();
         res.status(201).json({ message: "Note Created" })
@@ -35,6 +40,11 @@ export const createNote = async (req, res) => {
 export const updateNote = async (req, res) => {
     try {
         const { title, content } = req.body || {};
+        
+        if (!title || !content) {
+            return res.status(400).json({ message: "Title and content are required" });
+        }
+        
         const updatedNote = await Note.findByIdAndUpdate(
             req.params.id,
             { title, content },
